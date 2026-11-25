@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 64" width="224" height="64">
+  <!-- placeholder margin figure: replace with your own chart/image -->
+  <rect width="224" height="64" fill="#fffff8"/>
+  <g fill="none" stroke="#111111" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M4 46 L24 40 L44 44 L64 30 L84 34 L104 22 L124 26 L144 14 L164 18 L184 8 L204 12 L220 6"/>
+  </g>
+  <g stroke="#111111" stroke-opacity="0.18" stroke-width="1">
+    <line x1="4" y1="58" x2="220" y2="58"/>
+  </g>
+</svg>

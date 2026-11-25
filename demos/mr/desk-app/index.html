@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Antique Skeleton Pocket Watch — 3D Realtime Mechanical Timepiece</title>
+    <style>
+      :root {
+        --bg-color: #0c0b09;
+        --panel-bg: rgba(18, 15, 12, 0.92);
+        --panel-border: rgba(223, 181, 82, 0.25);
+        --accent-gold: #dfb552;
+        --accent-bronze: #8c6b23;
+        --text-primary: #f5eedc;
+        --text-secondary: #a39985;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0;
+        width: 100vw; height: 100vh;
+        background: url('desk2.png') center / cover no-repeat fixed;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text-primary);
+        overflow: hidden;
+        user-select: none;
+        touch-action: none;
+      }
+      #stage { width: 100vw; height: 100vh; touch-action: none; }
+      canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; mix-blend-mode: lighten;
+      canvas:active { cursor: grabbing; }
+
+      #hud {
+        position: fixed; left: 18px; top: 18px;
+        font: 11px/1.4 monospace; color: var(--text-secondary);
+        z-index: 10; pointer-events: none; opacity: 0.95;
+        background: rgba(12, 10, 8, 0.75);
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(10px);
+      }
+      .hud-title { font-weight: 800; color: var(--accent-gold); font-size: 14px; margin-bottom: 4px; letter-spacing: 1px; }
+      .hud-badge { display: inline-block; background: linear-gradient(90deg, var(--accent-gold), var(--accent-bronze)); color: #100c00; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 800; margin-left: 6px; }
+
+      #control-panel {
+        position: fixed; right: 18px; top: 18px;
+        width: 230px;
+        transform: scale(0.5);
+        transform-origin: top right;
+        background: var(--panel-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        padding: 14px;
+        z-index: 20;
+        display: flex; flex-direction: column; gap: 12px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 24px rgba(223, 181, 82, 0.15);
+      }
+
+      .panel-header { border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; }
+      .panel-title { font-size: 14px; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+      .panel-subtitle { font-size: 10px; color: var(--accent-gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+      .section-group { display: flex; flex-direction: column; gap: 6px; }
+      .section-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.6px; }
+
+      .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+      .btn {
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--panel-border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 10.5px; font-weight: 600;
+        cursor: pointer; transition: all 0.15s ease;
+      }
+      .btn:hover { background: rgba(223, 181, 82, 0.2); border-color: var(--accent-gold); }
+      .btn.active { background: var(--accent-gold); color: #0c0b09; font-weight: 800; border-color: var(--accent-gold); }
+      .btn-accent { background: linear-gradient(135deg, #dfb552, #8c6b23); color: #0c0b09; font-weight: 800; border: none; font-size: 11.5px; padding: 10px; }
+      .btn-accent:hover { filter: brightness(1.15); box-shadow: 0 0 12px rgba(223, 181, 82, 0.4); }
+      .btn:active { transform: scale(0.97); }
+      .btn-full { width: 100%; }
+
+      .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: var(--text-primary); }
+      .toggle-row input[type=checkbox] { cursor: pointer; width: 14px; height: 14px; accent-color: var(--accent-gold); margin: 0; }
+
+      .country-select {
+        width: 100%;
+        padding: 8px 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--accent-gold);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+      }
+      .country-select option {
+        background: #14110d;
+        color: #f5eedc;
+      }
+      .digital-clock-hud {
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--accent-gold);
+        text-align: center;
+        padding: 6px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 6px;
+        border: 1px solid rgba(223, 181, 82, 0.3);
+        margin-top: 4px;
+        letter-spacing: 1px;
+      }
+      .btn-explode-style {
+        background: rgba(223, 181, 82, 0.08);
+        color: #f5eedc;
+        font-weight: 700;
+        border: 1px solid rgba(223, 181, 82, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn-explode-style:hover {
+        background: rgba(223, 181, 82, 0.2);
+        border-color: #dfb552;
+        box-shadow: 0 0 10px rgba(223, 181, 82, 0.25);
+      }
+      .btn-explode-style.active {
+        background: linear-gradient(135deg, #a33827, #6e2217);
+        color: #ffffff;
+        border-color: #df5242;
+        box-shadow: 0 0 12px rgba(223, 82, 66, 0.4);
+      }
+      .btn-assemble-style {
+        background: rgba(223, 181, 82, 0.08);
+        color: #f5eedc;
+        font-weight: 700;
+        border: 1px solid rgba(223, 181, 82, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn-assemble-style:hover {
+        background: rgba(223, 181, 82, 0.2);
+        border-color: #dfb552;
+        box-shadow: 0 0 10px rgba(223, 181, 82, 0.25);
+      }
+      .btn-assemble-style.active {
+        background: linear-gradient(135deg, #dfb552, #8c6b23);
+        color: #0c0b09;
+        border-color: #dfb552;
+        box-shadow: 0 0 12px rgba(223, 181, 82, 0.4);
+      }
+      .btn-svg-icon {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
+
+      @media (max-width: 720px) {
+        html, body { height: 100%; }
+        #stage { height: 55vh; height: 55dvh; }
+        #hud { left: 10px; top: 10px; padding: 8px 10px; }
+        #control-panel {
+          left: 0; right: 0; top: auto; bottom: 0;
+          width: 100%;
+          height: 45vh; height: 45dvh;
+          max-height: 45vh; max-height: 45dvh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          touch-action: pan-y;
+          border-radius: 14px 14px 0 0;
+          border-left: none; border-right: none; border-bottom: none;
+          padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index2.js"></script>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <span id="fps-val" style="display:none">60</span>
+
+
+    <div id="control-panel">
+      <div class="panel-header">
+        <div class="panel-title">Antique Pocket Watch</div>
+        <div class="panel-subtitle">Interactive Real-Time Timepiece</div>
+      </div>
+
+      <div class="section-group">
+        <div class="section-label">🌍 Real-Time Country Clock</div>
+        <select id="timezone-select" class="country-select">
+          <option value="Asia/Kolkata" selected>🇮🇳 India (IST - UTC +5:30)</option>
+          <option value="America/New_York">🇺🇸 USA - New York (EST)</option>
+          <option value="America/Los_Angeles">🇺🇸 USA - Los Angeles (PST)</option>
+          <option value="Europe/London">🇬🇧 UK - London (GMT/BST)</option>
+          <option value="Asia/Tokyo">🇯🇵 Japan - Tokyo (JST)</option>
+          <option value="Asia/Dubai">🇦🇪 UAE - Dubai (GST)</option>
+          <option value="Europe/Berlin">🇩🇪 Germany - Berlin (CET)</option>
+          <option value="Australia/Sydney">🇦🇺 Australia - Sydney (AEST)</option>
+          <option value="Asia/Singapore">🇸🇬 Singapore (SGT)</option>
+          <option value="UTC">🌐 UTC Universal Time</option>
+        </select>
+        <div id="digital-clock" class="digital-clock-hud">15:52:53 IST</div>
+      </div>
+
+      <div class="section-group">
+        <div class="section-label">⚙️ Assembly Mode</div>
+        <div class="btn-grid">
+          <button id="btn-explode" class="btn btn-explode-style">
+            <svg class="btn-svg-icon" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2.1-2.1-5.4-2.4-7.8-.9l3.6 3.6-2.8 2.8-3.6-3.6c-1.5 2.4-1.2 5.7.9 7.8 1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.5z"/></svg>
+            Disassemble
+          </button>
+          <button id="btn-assemble" class="btn btn-assemble-style active">
+            <svg class="btn-svg-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            Reassemble
+          </button>
+        </div>
+      </div>
+
+      <div class="section-group">
+        <button id="btn-cover" class="btn btn-full btn-accent">Close Front Cover</button>
+      </div>
+
+      <div class="section-group">
+        <div class="section-label">Camera Angle</div>
+        <div class="btn-grid">
+          <button id="cam-front" class="btn active">Front View</button>
+          <button id="cam-hero" class="btn">3D Perspective</button>
+          <button id="cam-gears" class="btn">Gear Detail</button>
+          <button id="cam-macro" class="btn">Macro View</button>
+        </div>
+      </div>
+
+      <div class="section-group">
+        <div class="section-label">Controls</div>
+        <div class="toggle-row">
+          <span>Gear Motion</span>
+          <input id="toggle-motion" type="checkbox" checked />
+        </div>
+        <div class="toggle-row">
+          <span>Auto-Rotate</span>
+          <input id="toggle-rotate" type="checkbox" />
+        </div>
+      </div>
+
+      <div class="key-info">Authentic antique bronze hunter pocket watch with hinged flap cover and meshing brass gear train.</div>
+    </div>
+
+  </body>
+</html>

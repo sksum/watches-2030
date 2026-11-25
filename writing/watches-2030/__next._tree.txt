@@ -1,0 +1,10 @@
+:HL["/watches-2030/_next/static/chunks/0pe8i9-c0db21.css","style"]
+:HL["/watches-2030/_next/static/media/07a39a8a4660cc7c-s.p.0r6juujl39pe6.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/watches-2030/_next/static/media/605ce01b664af129-s.p.0wgildi0cnwt9.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/watches-2030/_next/static/media/de9751bfdfafdac8-s.p.0tlhhw_qyyfys.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/watches-2030/_next/static/media/fce692aaf0985484-s.p.33jraz4m6n5g3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/watches-2030/_next/static/chunks/2a86gw0-qil9m.css","style"]
+3:[["children",{"s":"__PAGE__","h":160}]]
+2:[["children",{"s":{"n":"slug","t":"d","k":"watches-2030","s":[]},"h":96,"c":"$Q3"}]]
+1:[["children",{"s":"writing","h":96,"c":"$Q2"}]]
+0:{"b":"VN8pz6SQT1B-bMJuiObfw","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
